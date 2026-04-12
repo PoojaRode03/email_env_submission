@@ -1,0 +1,18 @@
+spec_version: 1
+name: email_env
+type: space
+runtime: fastapi
+
+app: server.app:app
+entry_point: server.app:app
+port: 8000
+
+description: AI Email Assistant Environment
+
+tasks:
+  - id: task_easy
+    description: Classify emails
+  - id: task_medium
+    description: Classify + prioritize emails
+  - id: task_hard
+    description: Full email handling
