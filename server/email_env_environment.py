@@ -11,52 +11,68 @@ A simple test environment that echoes back messages sent to it.
 Perfect for testing HTTP server infrastructure.
 """
 #email_environment.py
-from env.tasks import get_tasks
-class Environment:
-    pass
-class EmailObservation:
-    def __init__(self, observation, reward, done):
-        self.observation = observation
-        self.reward = reward
-        self.done = done
+from openenv.core.env_server.interfaces import Environment
+from openenv.core.env_server.types import State
+
+from env.models import EmailAction, EmailObservation
 
 
-class EmailEnvironment(Environment):
+class EmailEnvironment(Environment[EmailAction, EmailObservation, State]):
 
-    def reset(self):
+    def __init__(self):
+        self._step_count = 0
+
+    def reset(self, seed=None, episode_id=None, **kwargs):
+        self._step_count = 0
+
         return EmailObservation(
             observation="Environment reset",
             reward=0.3,
             done=False
         )
 
-    def step(self, action):
+    def step(self, action: EmailAction, timeout_s=None, **kwargs):
+        self._step_count += 1
+
         message = action.message.lower()
         task = action.task.lower()
 
-        # TASK 1
         if task == "spam":
             if "win" in message or "lottery" in message:
-                return EmailObservation("Spam detected", 0.83, True)
-            return EmailObservation("Not spam", 0.27, True)
+                result = "Spam detected"
+                reward = 0.83
+            else:
+                result = "Not spam"
+                reward = 0.27
 
-        # TASK 2
         elif task == "category":
             if "meeting" in message:
-                return EmailObservation("Work email", 0.74, True)
-            return EmailObservation("Other email", 0.41, True)
+                result = "Work email"
+                reward = 0.74
+            else:
+                result = "Other email"
+                reward = 0.41
 
-        # TASK 3
         elif task == "reply":
-            return EmailObservation("Reply generated", 0.68, True)
+            result = "Reply generated"
+            reward = 0.68
 
-        # fallback
-        return EmailObservation("Invalid task", 0.19, True)
+        else:
+            result = "Invalid task"
+            reward = 0.19
 
+        return EmailObservation(
+            observation=result,
+            reward=reward,
+            done=True
+        )
+
+    @property
     def state(self):
-        return {"status": "running"}
+        return State(
+            episode_id="email-session",
+            step_count=self._step_count
+        )
 
     def close(self):
         pass
-    def get_task_list():
-        return get_tasks()

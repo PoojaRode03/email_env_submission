@@ -1,13 +1,12 @@
-# /email_env/email_env/env/models.py
-from pydantic import BaseModel
-
-class EmailAction(BaseModel):
-    email_id: int
-    action_type: str
-    value: str = None
+from openenv.core.env_server import Action, Observation
 
 
-class EmailObservation(BaseModel):
+class EmailAction(Action):
+    message: str
+    task: str
+
+
+class EmailObservation(Observation):
     observation: str
     reward: float
     done: bool
